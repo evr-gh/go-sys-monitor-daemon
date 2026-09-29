@@ -11,8 +11,8 @@ env:
   GOLANGCI_LINT_VERSION: v2.11.4
   
 jobs:
-  tests_by_makefile:
-    runs-on: ubuntu-latest
+  tests_by_makefile_ubuntu:
+    runs-on: ubuntu-18.04
     steps:
       - name: Set up Go
         uses: actions/setup-go@v6

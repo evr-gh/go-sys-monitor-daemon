@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package gtpsapi;
+
+option go_package = "./;grpcapi";
+
+
+
+service StatsService {
+  rpc GetStats(StatsRequest) returns (stream StatsResponse) {}
+}
+
+
+message StatsRequest {
+  int64 interval = 1;
+  int64 averaging_period = 2;
+  repeated StatType stat_types = 3;
+}
+
+
+enum StatType {
+  LOAD_AVERAGE        = 0;
+  CPU_STATS           = 1;
+  DISKS_LOAD          = 2;
+  DISKS_STATS         = 3; 
+  NETWORK_TOP_TALKERS = 4;
+  NETWORK_CONN_STATS  = 5; 
+}
+
+
+message StatsResponse {
+  int64 timestamp = 1;
+  int64 averaging_period = 2;
+  LoadAverage load_average = 3;
+  CPUStats cpu_stats = 4;
+  DisksLoad disks_load = 5;
+  DisksStats disks_stats = 6;
+  NetworkTopTalkers network_top_talkers = 7;
+  NetworkConnStats network_conn_stats = 8;
+}
+
+
+message LoadAverage {
+  double load1min = 1;
+  double load5min = 2;
+  double load15min = 3;
+}
+
+message CPUStats {
+  double user_mode = 1;
+  double system_mode = 2;
+  double idle = 3;
+}
+
+
+message DisksLoad {
+  repeated DiskLoad disk_load = 1;
+}
+
+message DiskLoad {
+  string name = 1;
+  double tps = 2;
+  double kps_read = 3;
+  double kps_write = 4;
+}
+
+message DisksStats {
+  repeated DiskStats disk_stats = 1;
+}
+
+message DiskStats {
+  string name = 1;
+  uint32 mb_usage_pct = 2;
+  uint32 in_usage_pct = 3;
+}
+
+message NetworkTopTalkers {
+  repeated ProtTopTalkers prot_top_talkers = 6;
+  repeated TrafficTopTalkers traffic_top_talkers = 7;
+}
+message ProtTopTalkers {
+  string prot = 1;
+  int64  bytes = 2;
+  double persent = 3;
+}
+
+message TrafficTopTalkers {
+  int32 port = 1;
+  int32 dest_port = 2;
+  string protocol = 3;
+  double bps = 4;
+}
+
+
+message NetworkConnStats {
+  int32 tcp_estab = 1;
+  int32 tcp_fin_wait = 2;
+  int32 tcp_syn_rcv = 3;
+  repeated ListeningSoket listening_soket = 4;
+}
+
+message ListeningSoket {
+  int32 port = 1;
+  int32 pid = 2;
+  string command = 3;
+  string user = 4;
+  string protocol = 5;
+}
+
+

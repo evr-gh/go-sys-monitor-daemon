@@ -1,0 +1,13 @@
+rpc: 
+  host: 127.0.0.1
+  port: 8001
+stats:
+  averaging_period_limit: 100
+  load_average: true
+  cpu_stats: true
+  disks_load: true
+  disks_starts: true
+  network_top_talkers: true
+  network_conn_stats: true
+logger:
+  level: DEBUG

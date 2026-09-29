@@ -65,11 +65,26 @@ linters:
             - github.com/DATA-DOG/go-sqlmock
             - github.com/jackc/pgx/v5
             - google.golang.org/grpc
+            - google.golang.org/grpc/peer
             - google.golang.org/grpc/status
             - google.golang.org/grpc/credentials/insecure
             - google.golang.org/protobuf/types/known/emptypb
             - google.golang.org/protobuf/types/known/durationpb
             - google.golang.org/protobuf/types/known/timestamppb
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/config
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/interfaces
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/logger
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/metrics
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/models
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/server/rpc
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/server/rpc/utils
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/server/converter
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/loadavg
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/cpustats
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/storage
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/storage/memory
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/collector
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/tools
         Test:
           files:
             - $test
@@ -86,11 +101,26 @@ linters:
             - github.com/DATA-DOG/go-sqlmock
             - github.com/jackc/pgx/v5
             - google.golang.org/grpc
+            - google.golang.org/grpc/peer
             - google.golang.org/grpc/status
             - google.golang.org/grpc/credentials/insecure
             - google.golang.org/protobuf/types/known/emptypb
             - google.golang.org/protobuf/types/known/durationpb
             - google.golang.org/protobuf/types/known/timestamppb
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/config
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/interfaces
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/logger
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/metrics
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/models
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/server/rpc
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/server/rpc/utils
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/server/converter
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/loadavg
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/cpustats
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/storage
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/storage/memory
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/collector
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/tools
     funlen:
       lines: 150
       statements: 80
