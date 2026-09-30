@@ -81,6 +81,8 @@ linters:
             - github.com/evr-gh/go-sys-monitor-deamon/internal/server/converter
             - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/loadavg
             - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/cpustats
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/disksload
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/diskstats
             - github.com/evr-gh/go-sys-monitor-deamon/internal/storage
             - github.com/evr-gh/go-sys-monitor-deamon/internal/storage/memory
             - github.com/evr-gh/go-sys-monitor-deamon/internal/collector
@@ -116,7 +118,9 @@ linters:
             - github.com/evr-gh/go-sys-monitor-deamon/internal/server/rpc/utils
             - github.com/evr-gh/go-sys-monitor-deamon/internal/server/converter
             - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/loadavg
-            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/cpustats
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/cpustat
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/disksload
+            - github.com/evr-gh/go-sys-monitor-deamon/internal/stats/diskstats
             - github.com/evr-gh/go-sys-monitor-deamon/internal/storage
             - github.com/evr-gh/go-sys-monitor-deamon/internal/storage/memory
             - github.com/evr-gh/go-sys-monitor-deamon/internal/collector

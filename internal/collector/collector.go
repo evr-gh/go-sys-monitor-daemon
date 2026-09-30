@@ -12,6 +12,8 @@ import (
 	"github.com/evr-gh/go-sys-monitor-deamon/internal/server/converter"
 	"github.com/evr-gh/go-sys-monitor-deamon/internal/server/rpc/grpcapi"
 	"github.com/evr-gh/go-sys-monitor-deamon/internal/stats/cpustats"
+	"github.com/evr-gh/go-sys-monitor-deamon/internal/stats/disksload"
+	"github.com/evr-gh/go-sys-monitor-deamon/internal/stats/diskstats"
 	"github.com/evr-gh/go-sys-monitor-deamon/internal/stats/loadavg"
 )
 
@@ -73,10 +75,12 @@ func (c *MetricsCollector) collectDiskLoad(timestamp time.Time) {
 	if !c.statsConfig.LoadAverage {
 		return
 	}
-	_ = timestamp
-	// if stats, err := loadavg.GetStats(); err == nil {
-	//	c.metrics.StoreLoadAverage(stats, timestamp)
-	//	}
+	c.logger.Debug("collectDiskLoad Start")
+	if stats, err := disksload.GetStats(c.ctx); err == nil {
+		c.metrics.StoreDiskLoad(stats, timestamp)
+	} else {
+		c.logger.Error("Ошибка при сборе метрик по загрузке дистков")
+	}
 	c.logger.Debug("collectDiskLoad End")
 }
 
@@ -86,9 +90,11 @@ func (c *MetricsCollector) collectDiskStats(timestamp time.Time) {
 	}
 	_ = timestamp
 	c.logger.Debug("collectDiskStats Start")
-	// if stats, err := loadavg.GetStats(); err == nil {
-	//	c.metrics.StoreLoadAverage(stats, timestamp)
-	//	}
+	if stats, err := diskstats.GetStats(c.ctx); err == nil {
+		c.metrics.StoreDiskStats(stats, timestamp)
+	} else {
+		c.logger.Error("Ошибка при сборе метрик по дискам")
+	}
 	c.logger.Debug("collectDiskStats End")
 }
 
@@ -120,10 +126,10 @@ func (c *MetricsCollector) collectMetrics(timestamp time.Time) {
 	var wg sync.WaitGroup
 
 	for statType, value := range c.work {
-		wg.Add(1)
-		go func(statType grpcapi.StatType) {
-			defer wg.Done()
-			if value > 0 {
+		if value > 0 {
+			wg.Add(1)
+			go func(statType grpcapi.StatType) {
+				defer wg.Done()
 				switch statType {
 				case grpcapi.StatType_LOAD_AVERAGE:
 					c.collectLoadAverage(timestamp)
@@ -138,8 +144,8 @@ func (c *MetricsCollector) collectMetrics(timestamp time.Time) {
 				case grpcapi.StatType_NETWORK_CONN_STATS:
 					c.collectNetworkConnStats(timestamp)
 				}
-			}
-		}(statType)
+			}(statType)
+		}
 	}
 
 	wg.Wait()
@@ -247,6 +253,24 @@ func (c *MetricsCollector) prepareCPUStatsResponse(averagingPeriod int64, respon
 	}
 }
 
+func (c *MetricsCollector) prepareDisksLoadResponse(averagingPeriod int64, response *grpcapi.StatsResponse) {
+	if !c.statsConfig.DisksLoad {
+		return
+	}
+	if avgStats := c.metrics.GetAverageDisksLoad(time.Duration(averagingPeriod) * time.Second); avgStats != nil {
+		response.DisksLoad = converter.DisksLoadToProto(avgStats)
+	}
+}
+
+func (c *MetricsCollector) prepareDiskStatsResponse(averagingPeriod int64, response *grpcapi.StatsResponse) {
+	if !c.statsConfig.DisksStats {
+		return
+	}
+	if stats := c.metrics.GetAverageDisksStats(time.Duration(averagingPeriod) * time.Second); stats != nil {
+		response.DisksStats = converter.DiskStatsToProto(stats)
+	}
+}
+
 func (c *MetricsCollector) PrepareResponse(averagingPeriod int64, statTypes []grpcapi.StatType) *grpcapi.StatsResponse {
 	response := &grpcapi.StatsResponse{
 		Timestamp: time.Now().Unix(),
@@ -258,9 +282,10 @@ func (c *MetricsCollector) PrepareResponse(averagingPeriod int64, statTypes []gr
 			c.prepareLoadAverageResponse(averagingPeriod, response)
 		case grpcapi.StatType_CPU_STATS:
 			c.prepareCPUStatsResponse(averagingPeriod, response)
-
 		case grpcapi.StatType_DISKS_LOAD:
+			c.prepareDisksLoadResponse(averagingPeriod, response)
 		case grpcapi.StatType_DISKS_STATS:
+			c.prepareDiskStatsResponse(averagingPeriod, response)
 		case grpcapi.StatType_NETWORK_TOP_TALKERS:
 		case grpcapi.StatType_NETWORK_CONN_STATS:
 		}

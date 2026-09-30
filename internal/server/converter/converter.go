@@ -26,3 +26,40 @@ func CPUStatToProto(cs *models.CPUStat) *grpcapi.CPUStats {
 		Idle:       cs.Idle,
 	}
 }
+
+func DisksLoadToProto(dl *models.DisksLoad) *grpcapi.DisksLoad {
+	if dl == nil {
+		return nil
+	}
+
+	disks := make([]*grpcapi.DiskLoad, len(dl.DisksLoad))
+	for i, disk := range dl.DisksLoad {
+		disks[i] = &grpcapi.DiskLoad{
+			Name:     disk.Name,
+			Tps:      disk.Tps,
+			KpsRead:  disk.KpsRead,
+			KpsWrite: disk.KpsWrite,
+		}
+	}
+	return &grpcapi.DisksLoad{
+		DiskLoad: disks,
+	}
+}
+
+func DiskStatsToProto(ds *models.DiskStats) *grpcapi.DisksStats {
+	if ds == nil {
+		return nil
+	}
+
+	diskStats := make([]*grpcapi.DiskStats, len(ds.DiskStats))
+	for i, diskStat := range ds.DiskStats {
+		diskStats[i] = &grpcapi.DiskStats{
+			Name:       diskStat.Name,
+			MbUsagePct: diskStat.MBUsagePct,
+			InUsagePct: diskStat.InUsagePct,
+		}
+	}
+	return &grpcapi.DisksStats{
+		DiskStats: diskStats,
+	}
+}

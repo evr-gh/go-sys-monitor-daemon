@@ -46,6 +46,18 @@ func (m *Storage) StoreCPUStats(stats *models.CPUStat, timestamp time.Time) {
 	m.cpuStats.Push(stats, timestamp)
 }
 
+func (m *Storage) StoreDiskLoad(stats *models.DisksLoad, timestamp time.Time) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.disksLoad.Push(stats, timestamp)
+}
+
+func (m *Storage) StoreDiskStats(stats *models.DiskStats, timestamp time.Time) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.disksStats.Push(stats, timestamp)
+}
+
 func getAverageFromStorage[T any](store storage.Storage, period time.Duration) []T {
 	now := time.Now()
 	start := now.Add(-period)
@@ -74,5 +86,25 @@ func (m *Storage) GetAverageCPUStats(period time.Duration) *models.CPUStat {
 	metrics := getAverageFromStorage[*models.CPUStat](m.cpuStats, period)
 	res := averageCPUStats(metrics)
 	m.logger.Debug("Подсчитатна средняя загрузка ЦПУ по %d значениям: %+v", len(metrics), res)
+	return res
+}
+
+func (m *Storage) GetAverageDisksLoad(period time.Duration) *models.DisksLoad {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	metrics := getAverageFromStorage[*models.DisksLoad](m.disksLoad, period)
+
+	res := averageDisksLoad(metrics)
+	m.logger.Debug("Подсчитатна средняя загрузка дисков по %d значениям: %+v", len(metrics), res)
+	return res
+}
+
+func (m *Storage) GetAverageDisksStats(period time.Duration) *models.DiskStats {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	metrics := getAverageFromStorage[*models.DiskStats](m.disksStats, period)
+
+	res := averageDisksStats(metrics)
+	m.logger.Debug("Подсчитатна статистика по дискам по %d значениям: %+v", len(metrics), res)
 	return res
 }
