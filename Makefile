@@ -56,7 +56,13 @@ run-img: build-img
 version: build
 	$(BIN) version
 
-test: run_tests 
+unit-tests:
+	go test -race ./internal/... ./cmd/... -v
+
+integration-tests:
+	go test -race ./integration-test -v
+
+test: unit-tests integration-tests
 	
 
 install-lint-deps:
@@ -65,9 +71,6 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
-
-run_tests:
-	go test -race ./internal/... ./cmd/...
 
 protoc-deps:
 	(which protoc > /dev/null) || (curl -fsSL "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip" -o /tmp/protoc.zip && unzip -oq -d $(shell go env GOPATH) /tmp/protoc.zip)

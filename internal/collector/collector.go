@@ -24,7 +24,7 @@ type MetricsCollector struct {
 	statsConfig config.StatsConfig
 	ctx         context.Context
 	cancel      context.CancelFunc
-	work        map[grpcapi.StatType]int32
+	work        []int32
 }
 
 func NewMetricsCollector(logger interfaces.Logger, conf config.StatsConfig) *MetricsCollector {
@@ -34,14 +34,7 @@ func NewMetricsCollector(logger interfaces.Logger, conf config.StatsConfig) *Met
 		metrics:     metrics.New(logger, conf.AveragingPeriodLimit+1),
 		mu:          sync.RWMutex{},
 		ctx:         context.Background(),
-		work: map[grpcapi.StatType]int32{
-			grpcapi.StatType_LOAD_AVERAGE:        0,
-			grpcapi.StatType_CPU_STATS:           0,
-			grpcapi.StatType_DISKS_LOAD:          0,
-			grpcapi.StatType_DISKS_STATS:         0,
-			grpcapi.StatType_NETWORK_TOP_TALKERS: 0,
-			grpcapi.StatType_NETWORK_CONN_STATS:  0,
-		},
+		work:        []int32{0, 0, 0, 0, 0, 0},
 	}
 }
 
@@ -53,7 +46,12 @@ func (c *MetricsCollector) collectLoadAverage(timestamp time.Time) {
 	if stats, err := loadavg.GetStats(c.ctx); err == nil {
 		c.metrics.StoreLoadAverage(stats, timestamp)
 	} else {
-		c.logger.Error("Ошибка при сборе метрик по средней загрузке системы")
+		err := c.ctx.Err()
+		if err != nil {
+			c.logger.Debug("collectLoadAverage End: %+v", err)
+			return
+		}
+		c.logger.Error("Ошибка при сборе метрик по средней загрузке системы: %+v", err)
 	}
 	c.logger.Debug("collectLoadAverage End")
 }
@@ -66,6 +64,11 @@ func (c *MetricsCollector) collectCPUSats(timestamp time.Time) {
 	if stats, err := cpustats.GetStats(c.ctx); err == nil {
 		c.metrics.StoreCPUStats(stats, timestamp)
 	} else {
+		err := c.ctx.Err()
+		if err != nil {
+			c.logger.Debug("collectCpuSats End: %+v", err)
+			return
+		}
 		c.logger.Error("Ошибка при сборе метрик по ЦПУ")
 	}
 	c.logger.Debug("collectCpuSats End")
@@ -79,6 +82,11 @@ func (c *MetricsCollector) collectDiskLoad(timestamp time.Time) {
 	if stats, err := disksload.GetStats(c.ctx); err == nil {
 		c.metrics.StoreDiskLoad(stats, timestamp)
 	} else {
+		err := c.ctx.Err()
+		if err != nil {
+			c.logger.Debug("collectDiskLoad End: %+v", err)
+			return
+		}
 		c.logger.Error("Ошибка при сборе метрик по загрузке дистков")
 	}
 	c.logger.Debug("collectDiskLoad End")
@@ -93,6 +101,11 @@ func (c *MetricsCollector) collectDiskStats(timestamp time.Time) {
 	if stats, err := diskstats.GetStats(c.ctx); err == nil {
 		c.metrics.StoreDiskStats(stats, timestamp)
 	} else {
+		err := c.ctx.Err()
+		if err != nil {
+			c.logger.Debug("collectDiskStats End: %+v", err)
+			return
+		}
 		c.logger.Error("Ошибка при сборе метрик по дискам")
 	}
 	c.logger.Debug("collectDiskStats End")
@@ -104,9 +117,7 @@ func (c *MetricsCollector) collectNetworkTopTalkers(timestamp time.Time) {
 	}
 	_ = timestamp
 	c.logger.Debug("collectNetworkTopTalkers Start")
-	// if stats, err := loadavg.GetStats(); err == nil {
-	//	c.metrics.StoreLoadAverage(stats, timestamp)
-	//	}
+
 	c.logger.Debug("collectNetworkTopTalkers End")
 }
 
@@ -116,16 +127,25 @@ func (c *MetricsCollector) collectNetworkConnStats(timestamp time.Time) {
 	}
 	_ = timestamp
 	c.logger.Debug("collectNetworkConnStats Start")
-	// if stats, err := loadavg.GetStats(); err == nil {
-	//	c.metrics.StoreLoadAverage(stats, timestamp)
-	//	}
+
 	c.logger.Debug("collectNetworkConnStats End")
+}
+
+func (c *MetricsCollector) getWorkFlags() []int32 {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	res := make([]int32, len(c.work)) // Выделяем память под все элементы
+	copy(res, c.work)
+	return res
 }
 
 func (c *MetricsCollector) collectMetrics(timestamp time.Time) {
 	var wg sync.WaitGroup
 
-	for statType, value := range c.work {
+	wf := c.getWorkFlags()
+
+	for statType, value := range wf {
 		if value > 0 {
 			wg.Add(1)
 			go func(statType grpcapi.StatType) {
@@ -144,7 +164,7 @@ func (c *MetricsCollector) collectMetrics(timestamp time.Time) {
 				case grpcapi.StatType_NETWORK_CONN_STATS:
 					c.collectNetworkConnStats(timestamp)
 				}
-			}(statType)
+			}(grpcapi.StatType(statType))
 		}
 	}
 
@@ -207,10 +227,12 @@ func (c *MetricsCollector) RegisterRequest(averagingPeriod int64, statTyes []grp
 			if !c.statsConfig.NetworkTopTalkers {
 				return fmt.Errorf("не собирается статистика по тop talkers в сети")
 			}
+			return fmt.Errorf("не реализован сбор статистики по тop talkers в сети")
 		case grpcapi.StatType_NETWORK_CONN_STATS:
 			if !c.statsConfig.NetworkConnStats {
 				return fmt.Errorf("не собирается статистика по сетевым соединениям")
 			}
+			return fmt.Errorf("не реализован сбор статистики по сетевым соединениям")
 		}
 	}
 

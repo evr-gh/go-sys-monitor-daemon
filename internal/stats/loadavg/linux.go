@@ -2,7 +2,6 @@ package loadavg
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/evr-gh/go-sys-monitor-deamon/internal/models"
@@ -22,8 +21,6 @@ func GetLoadAvg(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("*", res)
 
 	fields := strings.Fields(res)
 

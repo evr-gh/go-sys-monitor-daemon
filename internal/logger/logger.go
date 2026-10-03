@@ -22,7 +22,7 @@ func New(level interfaces.LogLevel, writer io.Writer) *Logger {
 
 func (l *Logger) saveMsg(level interfaces.LogLevel, template string, a ...any) {
 	var buildedString strings.Builder
-	fmt.Fprintf(&buildedString, "%s [%s] ", time.Now().UTC().Format("2006-01-02 15:04:05"), level)
+	fmt.Fprintf(&buildedString, "%s [%s] ", time.Now().Format("2006-01-02 15:04:05"), level)
 	fmt.Fprintf(&buildedString, template, a...)
 	if !strings.HasSuffix(template, "\n") {
 		buildedString.WriteString("\n")
