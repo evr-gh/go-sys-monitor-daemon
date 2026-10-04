@@ -32,15 +32,15 @@ run_cmd: build
 
 run_client: build_client
 	$(CLIENT_BIN)  -host=localhost -port=8001 -log_level=DEBUG  -interval=5 -averaging-period=10 \
-	-load_average=true  -cpu_stats=true -disks_load=true -disks_starts=true -network_top_talkers=true -network_conn_stats=true
+	-load_average=true  -cpu_stats=true -disks_load=true -disks_starts=true 
 
 run_client2: build_client
 	$(CLIENT_BIN)  -host=localhost -port=8001 -log_level=DEBUG  -interval=10 -averaging-period=100 \
-	-load_average=true  -cpu_stats=true -disks_load=true -disks_starts=true -network_top_talkers=true -network_conn_stats=true
+	-load_average=true  -cpu_stats=true -disks_load=true -disks_starts=true 
 
 run_client_error: build_client
 	$(CLIENT_BIN)  -host=localhost -port=8001 -log_level=DEBUG  -interval=10 -averaging-period=101 \
-	-load_average=true  -cpu_stats=true -disks_load=true -disks_starts=true -network_top_talkers=true -network_conn_stats=true
+	-load_average=true  -cpu_stats=true -disks_load=true -disks_starts=true 
 
 
 
