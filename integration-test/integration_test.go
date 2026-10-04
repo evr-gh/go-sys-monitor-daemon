@@ -210,7 +210,7 @@ func testCase2(t *testing.T,
 	})
 
 	wg.Go(func() {
-		time.Sleep(time.Duration(serverTimeout+2) * time.Second)
+		time.Sleep(time.Duration(float64(serverTimeout)+2.0001) * time.Second)
 		pid, _, _ := syscall.Syscall(syscall.SYS_GETPID, 0, 0, 0)
 		process, _ := os.FindProcess(int(pid))
 		process.Signal(syscall.SIGHUP)
