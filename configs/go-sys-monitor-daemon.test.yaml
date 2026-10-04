@@ -1,0 +1,11 @@
+rpc: 
+  host: 1.2.3.4
+  port: 5000
+stats:
+  averaging_period_limit: 400
+  load_average: true
+  disks_load: true
+  disks_starts: false
+  network_top_talkers: true
+logger:
+  level: INFO
